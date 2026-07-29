@@ -8,13 +8,14 @@ all: os.img
 boot.bin: boot.asm
 	$(NASM) -f bin boot.asm -o boot.bin
 
-os.img: boot.bin
-	$(CRTIMG) len:1440 size:2 boot.bin fill:00 name:os.img
+kernel.bin: kernel.asm
+	$(NASM) -f bin kernel.asm -o kernel.bin
 
-run: os.img
-	$(QEMU) -fda os.img
+stdos.img: boot.bin kernel.bin
+	cmd /c copy /b boot.bin+kernel.bin stdos.img
+
+run: stdos.img
+	$(QEMU) -fda stdos.img
 	
 clean:
-	del *.bin
-	del *.img
-	del *.o
+	

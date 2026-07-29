@@ -9,7 +9,9 @@ start:
     mov es,ax
     mov ss,ax
     mov sp,0x7c00
+    
     call read_kernel
+    
     jmp 0x0000:0x8000
 
 read_kernel:
