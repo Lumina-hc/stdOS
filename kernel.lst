@@ -1,0 +1,295 @@
+     1                                  [bits 32]
+     2                                  org 0x8000
+     3                                  
+     4 00000000 66B81000                mov ax,0x10
+     5 00000004 8ED8                    mov ds,ax
+     6 00000006 8EC0                    mov es,ax
+     7 00000008 8ED0                    mov ss,ax
+     8 0000000A BC00000900              mov esp,0x90000
+     9                                  
+    10 0000000F E829000000              call clear
+    11                                  
+    12 00000014 BE[EF020000]            mov esi,banner
+    13 00000019 E840000000              call print
+    14                                  
+    15                                  shell:
+    16 0000001E BE[03030000]            mov esi,prompt
+    17 00000023 E836000000              call print
+    18                                  
+    19 00000028 BF[40030000]            mov edi,buffer
+    20 0000002D E8A0000000              call read_line
+    21                                  
+    22 00000032 E83D020000              call command
+    23                                  
+    24 00000037 EBE5                    jmp shell
+    25                                  
+    26                                  video equ 0xb8000
+    27                                  
+    28                                  cursor:
+    29 00000039 00000000                dd 0
+    30                                  
+    31                                  %include "kernelAsm/basicFunc.asm"
+     1                              <1> clear:
+     2 0000003D BF00800B00          <1>     mov edi,video
+     3 00000042 B9D0070000          <1>     mov ecx,2000
+     4 00000047 66B82007            <1>     mov ax,0x0720
+     5 0000004B 66F3AB              <1>     rep stosw
+     6 0000004E C705[39000000]0000- <1>     mov dword[cursor],0
+     6 00000056 0000                <1>
+     7 00000058 E850000000          <1>     call update_cursor
+     8 0000005D C3                  <1>     ret
+     9                              <1> 
+    10                              <1> print:
+    11 0000005E AC                  <1>     lodsb
+    12 0000005F 3C00                <1>     cmp al,0
+    13 00000061 7407                <1>     je print_end
+    14 00000063 E803000000          <1>     call putchar
+    15 00000068 EBF4                <1>     jmp print
+    16                              <1> 
+    17                              <1> print_end:
+    18 0000006A C3                  <1>     ret
+    19                              <1> 
+    20                              <1> putchar:
+    21 0000006B 3C0D                <1>     cmp al,13
+    22 0000006D 7422                <1>     je newline
+    23                              <1> 
+    24 0000006F 8B1D[39000000]      <1>     mov ebx,[cursor]
+    25 00000075 888300800B00        <1>     mov [video+ebx],al
+    26 0000007B C68301800B0007      <1>     mov byte[video+ebx+1],7
+    27 00000082 83C302              <1>     add ebx,2
+    28 00000085 891D[39000000]      <1>     mov [cursor],ebx
+    29 0000008B E81D000000          <1>     call update_cursor
+    30 00000090 C3                  <1>     ret
+    31                              <1> 
+    32                              <1> newline:
+    33 00000091 A1[39000000]        <1>     mov eax,[cursor]
+    34 00000096 BBA0000000          <1>     mov ebx,160
+    35 0000009B 31D2                <1>     xor edx,edx
+    36 0000009D F7F3                <1>     div ebx
+    37 0000009F 40                  <1>     inc eax
+    38 000000A0 F7E3                <1>     mul ebx
+    39 000000A2 A3[39000000]        <1>     mov [cursor],eax
+    40 000000A7 E801000000          <1>     call update_cursor
+    41 000000AC C3                  <1>     ret
+    42                              <1> 
+    43                              <1> update_cursor:
+    44 000000AD A1[39000000]        <1>     mov eax,[cursor]
+    45 000000B2 D1E8                <1>     shr eax,1
+    46                              <1> 
+    47 000000B4 66BAD403            <1>     mov dx,0x3d4
+    48 000000B8 B00F                <1>     mov al,0x0f
+    49 000000BA EE                  <1>     out dx,al
+    50                              <1> 
+    51 000000BB 66BAD503            <1>     mov dx,0x3d5
+    52 000000BF 8A00                <1>     mov al,byte[eax]
+    53 000000C1 EE                  <1>     out dx,al
+    54                              <1> 
+    55 000000C2 66BAD403            <1>     mov dx,0x3d4
+    56 000000C6 B00E                <1>     mov al,0x0e
+    57 000000C8 EE                  <1>     out dx,al
+    58                              <1> 
+    59 000000C9 66BAD503            <1>     mov dx,0x3d5
+    60 000000CD 8A4001              <1>     mov al,byte[eax+1]
+    61 000000D0 EE                  <1>     out dx,al
+    62                              <1> 
+    63 000000D1 C3                  <1>     ret
+    64                              <1> 
+    65                              <1> read_line:
+    66 000000D2 89FE                <1>     mov esi,edi
+    67                              <1> 
+    68                              <1> read_loop:
+    69 000000D4 E84A000000          <1>     call keyboard
+    70                              <1> 
+    71 000000D9 3C0D                <1>     cmp al,13
+    72 000000DB 743A                <1>     je input_done
+    73                              <1> 
+    74 000000DD 3C08                <1>     cmp al,0x08
+    75 000000DF 740A                <1>     je do_backspace
+    76                              <1> 
+    77 000000E1 8806                <1>     mov [esi],al
+    78 000000E3 46                  <1>     inc esi
+    79 000000E4 E882FFFFFF          <1>     call putchar
+    80 000000E9 EBE9                <1>     jmp read_loop
+    81                              <1> 
+    82                              <1> do_backspace:
+    83 000000EB 39FE                <1>     cmp esi,edi
+    84 000000ED 76E5                <1>     jbe read_loop
+    85 000000EF 4E                  <1>     dec esi
+    86 000000F0 C60600              <1>     mov byte [esi],0
+    87 000000F3 8B1D[39000000]      <1>     mov ebx,[cursor]
+    88 000000F9 83EB02              <1>     sub ebx,2
+    89 000000FC 891D[39000000]      <1>     mov [cursor],ebx
+    90 00000102 C68300800B0020      <1>     mov byte [video+ebx],' '
+    91 00000109 C68301800B0007      <1>     mov byte [video+ebx+1],7
+    92 00000110 E898FFFFFF          <1>     call update_cursor
+    93 00000115 EBBD                <1>     jmp read_loop
+    94                              <1> 
+    95                              <1> input_done:
+    96 00000117 C60600              <1>     mov byte[esi],0
+    97 0000011A B00D                <1>     mov al,13
+    98 0000011C E84AFFFFFF          <1>     call putchar
+    99 00000121 C3                  <1>     ret
+    32                                  
+    33                                  %include "kernelAsm/key.asm"
+     1                              <1> bits 32
+     2                              <1> 
+     3                              <1> shift_pressed:
+     4 00000122 00                  <1> db 0
+     5                              <1> 
+     6                              <1> keyboard:
+     7                              <1> wait_key:
+     8 00000123 E464                <1>     in al,0x64
+     9 00000125 A801                <1>     test al,1
+    10 00000127 74FA                <1>     jz wait_key
+    11 00000129 E460                <1>     in al,0x60
+    12 0000012B 3C2A                <1>     cmp al,0x2A
+    13 0000012D 7433                <1>     je shift_down
+    14 0000012F 3C36                <1>     cmp al,0x36
+    15 00000131 742F                <1>     je shift_down
+    16 00000133 3CAA                <1>     cmp al,0xAA
+    17 00000135 7434                <1>     je shift_up
+    18 00000137 3CB6                <1>     cmp al,0xB6
+    19 00000139 7430                <1>     je shift_up
+    20 0000013B A880                <1>     test al,0x80
+    21 0000013D 75E4                <1>     jnz wait_key
+    22 0000013F 31DB                <1>     xor ebx,ebx
+    23 00000141 88C3                <1>     mov bl,al
+    24 00000143 803D[22010000]00    <1>     cmp byte [shift_pressed],0
+    25 0000014A 750B                <1>     jnz .shifted
+    26 0000014C 8A83[74010000]      <1>     mov al, [base_table + ebx]
+    27 00000152 3C00                <1>     cmp al,0
+    28 00000154 74CD                <1>     jz wait_key
+    29 00000156 C3                  <1>     ret
+    30                              <1> .shifted:
+    31 00000157 8A83[F4010000]      <1>     mov al, [shift_table + ebx]
+    32 0000015D 3C00                <1>     cmp al,0
+    33 0000015F 74C2                <1>     jz wait_key
+    34 00000161 C3                  <1>     ret
+    35                              <1> 
+    36                              <1> shift_down:
+    37 00000162 C605[22010000]01    <1>     mov byte [shift_pressed],1
+    38 00000169 EBB8                <1>     jmp wait_key
+    39                              <1> 
+    40                              <1> shift_up:
+    41 0000016B C605[22010000]00    <1>     mov byte [shift_pressed],0
+    42 00000172 EBAF                <1>     jmp wait_key
+    43                              <1> 
+    44                              <1> base_table:
+    45 00000174 0000313233343536    <1> db 0,0,'1','2','3','4','5','6'
+    46 0000017C 373839302D3D0809    <1> db '7','8','9','0','-','=',0x08,0x09
+    47 00000184 7177657274797569    <1> db 'q','w','e','r','t','y','u','i'
+    48 0000018C 6F705B5D0D006173    <1> db 'o','p','[',']',13,0,'a','s'
+    49 00000194 646667686A6B6C3B    <1> db 'd','f','g','h','j','k','l',';'
+    50 0000019C 2760005C7A786376    <1> db 0x27,'`',0,0x5C,'z','x','c','v'
+    51 000001A4 626E6D2C2E2F0000    <1> db 'b','n','m',',','.','/',0,0
+    52 000001AC 0000002000000000    <1> db 0,0,0,' ',0,0,0,0
+    53 000001B4 0000000000000000    <1> db 0,0,0,0,0,0,0,0
+    54 000001BC 0000000000000000    <1> db 0,0,0,0,0,0,0,0
+    55 000001C4 0000000000000000    <1> db 0,0,0,0,0,0,0,0
+    56 000001CC 0000000000000000    <1> db 0,0,0,0,0,0,0,0
+    57 000001D4 0000000000000000    <1> db 0,0,0,0,0,0,0,0
+    58 000001DC 0000000000000000    <1> db 0,0,0,0,0,0,0,0
+    59 000001E4 0000000000000000    <1> db 0,0,0,0,0,0,0,0
+    60 000001EC 0000000000000000    <1> db 0,0,0,0,0,0,0,0
+    61                              <1> 
+    62                              <1> shift_table:
+    63 000001F4 000021402324255E    <1> db 0,0,'!','@','#','$','%','^'
+    64 000001FC 262A28295F2B0809    <1> db '&','*','(',')','_','+',0x08,0x09
+    65 00000204 5157455254595549    <1> db 'Q','W','E','R','T','Y','U','I'
+    66 0000020C 4F507B7D0D004153    <1> db 'O','P','{','}',13,0,'A','S'
+    67 00000214 444647484A4B4C3A    <1> db 'D','F','G','H','J','K','L',':'
+    68 0000021C 227E007C5A584356    <1> db 0x22,'~',0,0x7C,'Z','X','C','V'
+    69 00000224 424E4D3C3E3F0000    <1> db 'B','N','M','<','>','?',0,0
+    70 0000022C 0000002000000000    <1> db 0,0,0,' ',0,0,0,0
+    71 00000234 0000000000000000    <1> db 0,0,0,0,0,0,0,0
+    72 0000023C 0000000000000000    <1> db 0,0,0,0,0,0,0,0
+    73 00000244 0000000000000000    <1> db 0,0,0,0,0,0,0,0
+    74 0000024C 0000000000000000    <1> db 0,0,0,0,0,0,0,0
+    75 00000254 0000000000000000    <1> db 0,0,0,0,0,0,0,0
+    76 0000025C 0000000000000000    <1> db 0,0,0,0,0,0,0,0
+    77 00000264 0000000000000000    <1> db 0,0,0,0,0,0,0,0
+    78 0000026C 0000000000000000    <1> db 0,0,0,0,0,0,0,0
+    34                                  
+    35                                  %include "kernelAsm/command.asm"
+     1                              <1> ; command
+     2                              <1> 
+     3                              <1> command:
+     4 00000274 BE[40030000]        <1>     mov esi,buffer
+     5                              <1> 
+     6 00000279 803E00              <1>     cmp byte[esi],0
+     7 0000027C 7431                <1>     je command_end
+     8                              <1> 
+     9 0000027E 813E68656C70        <1>     cmp dword[esi],"help"
+    10 00000284 742A                <1>     je cmd_help
+    11                              <1> 
+    12 00000286 813E6563686F        <1>     cmp dword[esi],"echo"
+    13 0000028C 7434                <1>     je cmd_echo
+    14                              <1> 
+    15 0000028E 813E636C6561        <1>     cmp dword[esi],"clean"
+    15          ******************  <1>  warning: dword exceeds bounds [-w+number-overflow]
+    16 00000294 7441                <1>     je cmd_clear
+    17                              <1> 
+    18 00000296 813E61626F75        <1>     cmp dword[esi],"about"
+    18          ******************  <1>  warning: dword exceeds bounds [-w+number-overflow]
+    19 0000029C 743F                <1>     je cmd_about
+    20                              <1> 
+    21 0000029E BE[30030000]        <1>     mov esi,unknown_msg
+    22 000002A3 E8B6FDFFFF          <1>     call print
+    23 000002A8 B00D                <1>     mov al,13
+    24 000002AA E8BCFDFFFF          <1>     call putchar
+    25                              <1> 
+    26                              <1> command_end:
+    27 000002AF C3                  <1>     ret
+    28                              <1> 
+    29                              <1> cmd_help:
+    30 000002B0 BE[06030000]        <1>     mov esi,help_msg
+    31 000002B5 E8A4FDFFFF          <1>     call print
+    32 000002BA B00D                <1>     mov al,13
+    33 000002BC E8AAFDFFFF          <1>     call putchar
+    34 000002C1 C3                  <1>     ret
+    35                              <1> 
+    36                              <1> cmd_echo:
+    37 000002C2 BE[40030000]        <1>     mov esi,buffer
+    38 000002C7 83C605              <1>     add esi,5
+    39 000002CA E88FFDFFFF          <1>     call print
+    40 000002CF B00D                <1>     mov al,13
+    41 000002D1 E895FDFFFF          <1>     call putchar
+    42 000002D6 C3                  <1>     ret
+    43                              <1> 
+    44                              <1> cmd_clear:
+    45 000002D7 E861FDFFFF          <1>     call clear
+    46 000002DC C3                  <1>     ret
+    47                              <1> 
+    48                              <1> cmd_about:
+    49 000002DD BE[1C030000]        <1>     mov esi,about_msg
+    50 000002E2 E877FDFFFF          <1>     call print
+    51 000002E7 B00D                <1>     mov al,13
+    52 000002E9 E87DFDFFFF          <1>     call putchar
+    53 000002EE C3                  <1>     ret
+    54                              <1> 
+    55                              <1> ; command text
+    56                              <1> 
+    57                              <1> banner:
+    58 000002EF 7374644F5320333262- <1>     db "stdOS 32bit kernel",13,0
+    58 000002F8 6974206B65726E656C- <1>
+    58 00000301 0D00                <1>
+    59                              <1> 
+    60                              <1> prompt:
+    61 00000303 3E2000              <1>     db "> ",0
+    62                              <1> 
+    63                              <1> help_msg:
+    64 00000306 68656C7020636C6561- <1>     db "help clear about echo",0
+    64 0000030F 722061626F75742065- <1>
+    64 00000318 63686F00            <1>
+    65                              <1> 
+    66                              <1> about_msg:
+    67 0000031C 7374644F5320687962- <1>     db "stdOS hybrid kernel",0
+    67 00000325 726964206B65726E65- <1>
+    67 0000032E 6C00                <1>
+    68                              <1> 
+    69                              <1> unknown_msg:
+    70 00000330 756E6B6E6F776E2063- <1>     db "unknown command",0
+    70 00000339 6F6D6D616E6400      <1>
+    71                              <1> 
+    72                              <1> buffer:
+    73 00000340 00<rep 80h>         <1>     times 128 db 0
