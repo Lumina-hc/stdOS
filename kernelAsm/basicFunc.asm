@@ -1,3 +1,5 @@
+global clear, C_read_line
+
 clear:
     mov edi,video
     mov ecx,2000
@@ -61,6 +63,10 @@ update_cursor:
     out dx,al
 
     ret
+
+C_read_line:
+    mov edi,[esp + 4]
+    jmp read_line
 
 read_line:
     mov esi,edi

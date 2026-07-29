@@ -1,32 +1,20 @@
 [bits 32]
-org 0x8000
+global _start
+extern kmain
 
-mov ax,0x10
-mov ds,ax
-mov es,ax
-mov ss,ax
-mov esp,0x90000
+_start:
+    mov ax,0x10
+    mov ds,ax
+    mov es,ax
+    mov ss,ax
+    mov esp,0x90000
 
-call clear
+    call clear
 
-mov esi,banner
-call print
+    call kmain
 
-shell:
-mov esi,prompt
-call print
-
-mov edi,buffer
-call read_line
-
-call command
-
-jmp shell
-
-video equ 0xb8000
-
-cursor:
-dd 0
+extern video
+extern cursor
 
 %include "kernelAsm/basicFunc.asm"
 
