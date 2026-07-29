@@ -1,32 +1,47 @@
-    bits 16
-    org 0x7c00
+bits 16
+org 0x7c00
 
-    start:
-        mov ax,0
-        mov ss,ax
-        mov sp,0x7c00
-        mov ds,ax
-        mov es,ax
-        call Read ; 读扇区，为内核做准备
+start:
+    cli
+    mov [drive],dl
+    xor ax,ax
+    mov ds,ax
+    mov es,ax
+    mov ss,ax
+    mov sp,0x7c00
+    call read_kernel
+    jmp 0x0000:0x8000
 
-        jmp $
-    Read:
-        mov ah,0x02
-        mov al,15
-        mov ch,0
-        mov cl,2
-        mov dh,0
-        mov dl,0
-        mov bx,0x0800
-        mov es,bx
-        mov bx,0
+read_kernel:
+    mov ah,0x02
+    mov al,15
+    mov ch,0
+    mov cl,2
+    mov dh,0
+    mov dl,[drive]
+    mov bx,0x0800
+    mov es,bx
+    xor bx,bx
+    int 0x13
+    jc disk_error
+    ret
 
-        int 0x13
+disk_error:
+    mov si,error_msg
 
-        jc error
+error_loop:
+    lodsb
+    cmp al,0
+    je error_stop
+    mov ah,0x0e
+    int 0x10
+    jmp error_loop
 
-        ret
-    error: jmp $
+error_stop:
+    jmp error_stop
+
+drive db 0
+error_msg db "Disk Error",0
 
 times 510-($-$$) db 0
-dw 0xAA55
+dw 0xaa55
