@@ -70,6 +70,9 @@ wait_key:
     cmp al,0x32
     je key_m
 
+    cmp al,0x0e
+    je key_backspace
+
     jmp wait_key
 
 key_q:
@@ -153,6 +156,10 @@ key_m:
 key_space:
     mov al,' '
     ret
+key_backspace:
+    mov al,0x08
+    ret
+
 key_enter:
     mov al,13
     ret

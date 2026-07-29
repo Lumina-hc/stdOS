@@ -71,11 +71,25 @@ read_loop:
     cmp al,13
     je input_done
 
+    cmp al,0x08
+    je do_backspace
+
     mov [esi],al
     inc esi
-
     call putchar
+    jmp read_loop
 
+do_backspace:
+    cmp esi,edi
+    jbe read_loop
+    dec esi
+    mov byte [esi],0
+    mov ebx,[cursor]
+    sub ebx,2
+    mov [cursor],ebx
+    mov byte [video+ebx],' '
+    mov byte [video+ebx+1],7
+    call update_cursor
     jmp read_loop
 
 input_done:

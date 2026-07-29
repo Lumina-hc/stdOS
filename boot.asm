@@ -9,10 +9,20 @@ start:
     mov es,ax
     mov ss,ax
     mov sp,0x7c00
-    
+
     call read_kernel
-    
-    jmp 0x0000:0x8000
+
+    in al,0x92
+    or al,2
+    out 0x92,al
+
+    lgdt [gdt_desc]
+
+    mov eax,cr0
+    or eax,1
+    mov cr0,eax
+
+    jmp 0x08:0x8000
 
 read_kernel:
     mov ah,0x02
@@ -44,6 +54,27 @@ error_stop:
 
 drive db 0
 error_msg db "Disk Error",0
+
+gdt:
+    dq 0
+    dw 0xffff
+    dw 0
+    db 0
+    db 10011010b
+    db 11001111b
+    db 0
+    dw 0xffff
+    dw 0
+    db 0
+    db 10010010b
+    db 11001111b
+    db 0
+
+gdt_end:
+
+gdt_desc:
+    dw gdt_end - gdt - 1
+    dd gdt
 
 times 510-($-$$) db 0
 dw 0xaa55
