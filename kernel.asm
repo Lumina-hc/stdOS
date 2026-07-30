@@ -9,15 +9,13 @@ _start:
     mov ss,ax
     mov esp,0x90000
 
+    call setIdt
     call clear
-
     call kmain
 
 extern video
 extern cursor
 
 %include "kernelAsm/basicFunc.asm"
-
 %include "kernelAsm/key.asm"
-
-%include "kernelAsm/command.asm"
+%include "kernelAsm/idt.asm"
