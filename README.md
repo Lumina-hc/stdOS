@@ -1,54 +1,8 @@
 # stdOS
 
----
-
-[**English**](#english) | [**中文**](#中文)
-
----
-
-## English
-
-32-bit protected mode OS with FAT16 filesystem, IDE PIO disk I/O, and keyboard.
-
-### Build
-
-Requires: NASM, i686-elf-gcc, QEMU
-
-```
-make.bat
-```
-
-### Commands
-
-| Command | Description |
-|---------|-------------|
-| `help` | Show help |
-| `clear` | Clear screen |
-| `about` | Show version |
-| `ls` | List directory |
-| `cat <file>` | Read file |
-| `cd <dir>` | Change directory |
-| `mkdir <dir>` | Create directory |
-| `rm <file>` | Delete file |
-| `write <file> <data>` | Write file |
-| `echo <text>` | Print text |
-| `hlt` | Halt CPU |
-
----
-
-## 中文
-
 32位保护模式操作系统，支持 FAT16 文件系统、IDE PIO 磁盘读写、键盘。
 
-### 构建
-
-依赖：NASM, i686-elf-gcc, QEMU
-
-```
-make.bat
-```
-
-### 命令
+依赖：NASM, i686-elf-gcc, QEMU。运行 `make.bat`。
 
 | 命令 | 说明 |
 |------|------|
@@ -63,3 +17,23 @@ make.bat
 | `write <文件> <内容>` | 写入文件 |
 | `echo <文本>` | 打印文本 |
 | `hlt` | 停止 CPU |
+
+---
+
+32-bit protected mode OS with FAT16 filesystem, IDE PIO disk I/O, keyboard.
+
+Requires: NASM, i686-elf-gcc, QEMU. Run `make.bat`.
+
+| Command | Description |
+|---------|-------------|
+| `help` | Show help |
+| `clear` | Clear screen |
+| `about` | Show version |
+| `ls` | List directory |
+| `cat <file>` | Read file |
+| `cd <dir>` | Change directory |
+| `mkdir <dir>` | Create directory |
+| `rm <file>` | Delete file |
+| `write <file> <data>` | Write file |
+| `echo <text>` | Print text |
+| `hlt` | Halt CPU |
