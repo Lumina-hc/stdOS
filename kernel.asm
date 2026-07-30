@@ -1,21 +1,28 @@
 [bits 32]
 global _start
-extern kmain
+
+extern __bss_start, __bss_end
+extern setIdt, irq_init, clear, kmain
 
 _start:
     mov ax,0x10
     mov ds,ax
     mov es,ax
     mov ss,ax
-    mov esp,0x90000
+    mov esp,0x200000
+
+    mov edi,__bss_start
+    mov ecx,__bss_end
+    sub ecx,edi
+    xor eax,eax
+    cld
+    rep stosb
 
     call setIdt
+    call irq_init
     call clear
     call kmain
 
-extern video
-extern cursor
-
-%include "kernelAsm/basicFunc.asm"
-%include "kernelAsm/key.asm"
-%include "kernelAsm/idt.asm"
+.h:
+    hlt
+    jmp .h
