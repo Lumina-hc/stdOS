@@ -5,6 +5,7 @@ extern __bss_start, __bss_end
 extern setIdt, irq_init, clear, kmain
 
 _start:
+    cli
     mov ax,0x10
     mov ds,ax
     mov es,ax

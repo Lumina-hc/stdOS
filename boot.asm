@@ -52,6 +52,7 @@ start:
     or al,2
     out 0x92,al
 
+    cli
     lgdt [gdt_desc]
 
     mov eax,cr0
