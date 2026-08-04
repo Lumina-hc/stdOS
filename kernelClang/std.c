@@ -4,6 +4,10 @@ void rline(char* buffer){
     C_read_line(buffer);
 }
 
+char getchar(void){
+    return (char)keyboard();
+}
+
 int strlen(char* s){
     int i=0;
     while(s[i]) i++;

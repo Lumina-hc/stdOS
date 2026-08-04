@@ -16,5 +16,8 @@ void C_read_line(char* buffer);
 void rline(char* buffer);
 void print(char* msg);
 
+int keyboard(void);
+char getchar(void);
+
 int strlen(char* s);
 int strcmp(char* source, const char* desti);
