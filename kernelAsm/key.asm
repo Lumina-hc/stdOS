@@ -2,15 +2,17 @@ bits 32
 
 global keyboard
 
+section .data
 shift db 0
 
+section .text
 keyboard:
     in al,0x64
     test al,1
     jz keyboard
     in al,0x60
-    mov bl,al
-    and bl,0x80
+
+    test al,0x80
     jnz .brk
 
     cmp al,0x2A

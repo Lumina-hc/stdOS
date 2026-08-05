@@ -1,4 +1,4 @@
-global clear, C_read_line
+global clear, rline
 extern putchar, update_cursor, cursor, keyboard
 
 clear:
@@ -10,7 +10,7 @@ clear:
     call update_cursor
     ret
 
-C_read_line:
+rline:
     mov edi,[esp+4]
     jmp read_line
 

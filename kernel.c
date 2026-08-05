@@ -1,5 +1,9 @@
+#include "kernelClang/stdint.h"
 #include "kernelClang/std.h"
 #include "kernelClang/fat16.h"
+#include "kernelClang/memory.h"
+
+void set_pading();
 
 FAT16 fs;
 char buf[128];
@@ -27,10 +31,9 @@ static int ipre(char *a, char *pre){
 
 void command(char *s){
     if(*s==0) return;
-    if(icmp(s,"help")){ print("help clear about hlt ls cat cd mkdir rm write\n"); return; }
+    if(icmp(s,"help")){ print("help clear about ls cat cd mkdir rm write\n"); return; }
     if(icmp(s,"clear")){ clear(); return; }
-    if(icmp(s,"about")){ print("stdOS FAT16\n"); return; }
-    if(icmp(s,"hlt")){ asm_hlt(); return; }
+    if(icmp(s,"about")){ print("stdOS v0.1.0\n"); return; }
     if(icmp(s,"ls")){ fat16_list(&fs); return; }
     if(ipre(s,"cd")){ if(fat16_cd(&fs,s+3)) print("not found\n"); return; }
     if(ipre(s,"cat")){
@@ -57,9 +60,19 @@ void command(char *s){
     print("unknown\n");
 }
 
-void kmain(void){
+void OSinit(){
+    timer_init();
+    asm_sti();
+    
+    HeapInit();
     fat16_init(&fs);
-    print("stdOS FAT16\n");
+    set_pading();
+    return ;
+}
+
+void kmain(void){
+    OSinit();
+    print("stdOS Alpha 0.1.0\n");
     while(1){
         print("> ");
         rline(buf);

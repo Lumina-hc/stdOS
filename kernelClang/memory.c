@@ -99,3 +99,34 @@ void kfree(void* mem)
             prev->next->prev = prev;
     }
 }
+
+void* kcalloc(size_t size)
+{
+    if (size == 0) return VNULL;
+
+    size = AL8(size);
+
+    HBLP blk = find_free_mem(size);
+    if (blk == HNULL) return VNULL;
+
+    size_t total = blk->size;
+    if (total >= size + MINHEAPSIZE) {
+        HBLP newblk = (HBLP)((uint8_t*)(blk + 1) + size);
+
+        newblk->size = total - size - sizeof(HBL);
+        newblk->free = 1;
+        newblk->prev = blk;
+        newblk->next = blk->next;
+
+        if (newblk->next) newblk->next->prev = newblk;
+
+        blk->next = newblk;
+        blk->size = size;
+    }
+
+    blk->free = 0;
+
+    void* temp = (void*)(blk + 1);
+    *(size_t*)temp = 0;
+    return (void*)(blk + 1);
+}

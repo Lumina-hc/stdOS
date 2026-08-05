@@ -19,8 +19,11 @@ _start:
     cld
     rep stosb
 
+    cli
     call setIdt
     call irq_init
+    sti
+    
     call clear
     call kmain
 

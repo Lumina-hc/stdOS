@@ -2,6 +2,9 @@ global print, putchar, update_cursor, scroll
 global asm_hlt, asm_cli, asm_sti
 global io_in8, io_in16, io_in32
 global io_out8, io_out16, io_out32
+global load_pading
+global save_esp,restore_esp
+global pushadC, popadC
 
 extern video, cursor
 
@@ -106,6 +109,16 @@ asm_sti:
     sti
     ret
 
+save_esp:
+    pushad
+    mov eax,esp
+    ret
+
+restore_esp:
+    mov esp,[esp+4]
+    popad
+    ret
+
 io_in8:
     mov edx,[esp+4]
     mov eax,0
@@ -141,3 +154,23 @@ io_out32:
     mov eax,[esp+8]
     out dx,eax
     ret
+
+pushadC:
+    pushad
+    ret
+popadC:
+    popad
+    ret
+
+load_pading: ; load_pading(uint32_t page_directory)
+    mov eax, [esp+4]
+    mov cr3, eax
+
+    cli
+    mov eax, cr0
+    or eax, 0x80000000
+    mov cr0, eax
+    sti
+    
+    ret
+
