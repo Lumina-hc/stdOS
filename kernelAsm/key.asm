@@ -1,16 +1,14 @@
 bits 32
 
 global keyboard
+extern get_scancode
 
 section .data
 shift db 0
 
 section .text
 keyboard:
-    in al,0x64
-    test al,1
-    jz keyboard
-    in al,0x60
+    call get_scancode
 
     test al,0x80
     jnz .brk

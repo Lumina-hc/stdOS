@@ -1,5 +1,10 @@
 #include "stdbool.h"
 
+#define SEG_CODE 0x08
+#define SEG_DATA 0x10
+#define SEG_USER_CODE 0x18
+#define SEG_USER_DATA 0x20
+
 typedef char* va_list;
 #define va_start(ap, last) \
     (ap = (char*)(&(last)) + sizeof(last))

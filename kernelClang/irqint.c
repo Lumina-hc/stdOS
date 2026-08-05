@@ -16,6 +16,34 @@ void timer_handler(void){
     io_out8(0x20, 0x20);
 }
 
+#define KB_BUF 256
+
+volatile unsigned char kb_buf[KB_BUF];
+volatile int kb_head = 0;
+volatile int kb_tail = 0;
+
+void keyboard_handler(void){
+    unsigned char sc = (unsigned char)io_in8(0x60);
+    int next = (kb_head + 1) % KB_BUF;
+    if (next != kb_tail) {
+        kb_buf[kb_head] = sc;
+        kb_head = next;
+    }
+    io_out8(0x20, 0x20);
+}
+
+int get_scancode(void){
+    while (kb_tail == kb_head) {}
+    unsigned char sc = kb_buf[kb_tail];
+    kb_tail = (kb_tail + 1) % KB_BUF;
+    return (int)sc;
+}
+
+void keyboard_init(void){
+    registerHandler(IRQ(1), keyboard_handler);
+    pic_enable_irq(1);
+}
+
 void timer_init(void){
     keyboard_init();
     registerHandler(IRQ(0), timer_handler);
