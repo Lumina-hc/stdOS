@@ -9,6 +9,18 @@ FAT16 fs;
 char buf[128];
 char tmp[1024];
 
+volatile unsigned int tick = 0;
+
+void timer_handler(void){
+    tick++;
+    io_out8(0x20, 0x20);
+}
+
+void timer_init(void){
+    registerHandler(0x20, timer_handler);
+    io_out8(0x21, 0xFE);
+}
+
 static int icmp(char *a, char *b){
     for(;*a&&*b;a++,b++){
         char ca=*a, cb=*b;
