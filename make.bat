@@ -24,4 +24,4 @@ powershell -NoProfile -ExecutionPolicy Bypass -File mkimg.ps1
 
 del boot.bin *.o *.elf
 
-qemu-system-i386 -drive file=stdos.img,format=raw,if=ide
+qemu-system-i386 -drive file=stdos.img,format=raw,if=ide -serial stdio
