@@ -94,6 +94,8 @@ setIdt:
     ret
 
 registerHandler:
+    mov eax,[esp+4]
+    mov ebx,[esp+8]
     cmp eax,IDT_ENTRIES
     jae .bad
     mov [handler_table+eax*4],ebx

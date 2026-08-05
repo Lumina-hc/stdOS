@@ -19,5 +19,8 @@ void print(char* msg);
 int keyboard(void);
 char getchar(void);
 
+int registerHandler(int vector, void (*handler)(void));
+extern volatile unsigned int tick;
+
 int strlen(char* s);
 int strcmp(char* source, const char* desti);
