@@ -1,4 +1,4 @@
-#include "std.h"
+#include "..\std.h"
 #include "fat16.h"
 #include "diskio.h"
 

@@ -2,7 +2,6 @@ global print, putchar, update_cursor, scroll
 global asm_hlt, asm_cli, asm_sti
 global io_in8, io_in16, io_in32
 global io_out8, io_out16, io_out32
-global load_pading
 global save_esp,restore_esp
 global pushadC, popadC
 
@@ -43,7 +42,6 @@ putchar:
     mov [cursor],ebx
     call update_cursor
     ret
-
 newline:
     mov eax,[cursor]
     mov ebx,160
@@ -162,15 +160,18 @@ popadC:
     popad
     ret
 
-load_pading: ; load_pading(uint32_t page_directory)
-    mov eax, [esp+4]
-    mov cr3, eax
+global load_cr3
 
-    cli
+load_cr3:
+    mov eax, [esp + 4]   ; 页目录物理地址
+    mov cr3, eax
+    ret
+
+global enable_paging
+enable_paging:
     mov eax, cr0
     or eax, 0x80000000
     mov cr0, eax
-    sti
-    
+    jmp .end
+.end:
     ret
-

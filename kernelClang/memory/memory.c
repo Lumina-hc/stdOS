@@ -1,5 +1,5 @@
-#include "stdbool.h"
-#include "stdint.h"
+#include "..\stdbool.h"
+#include "..\stdint.h"
 
 typedef unsigned long size_t;
 typedef unsigned int uintptr_t;
@@ -127,6 +127,6 @@ void* kcalloc(size_t size)
     blk->free = 0;
 
     void* temp = (void*)(blk + 1);
-    *(size_t*)temp = 0;
-    return (void*)(blk + 1);
+    *((size_t*)temp) = 0;
+    return temp;
 }

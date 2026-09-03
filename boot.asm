@@ -101,6 +101,18 @@ gdt:
     db 10010010b
     db 11001111b
     db 0
+    dw 0xffff
+    dw 0
+    db 0
+    db 11111010b
+    db 11001111b
+    db 0
+    dw 0xffff
+    dw 0
+    db 0
+    db 11110010b
+    db 11001111b
+    db 0
 gdt_end:
 
 gdt_desc:

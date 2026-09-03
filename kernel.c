@@ -1,9 +1,8 @@
 #include "kernelClang/stdint.h"
 #include "kernelClang/std.h"
-#include "kernelClang/fat16.h"
-#include "kernelClang/memory.h"
-
-void set_pading();
+#include "kernelClang/disk/fat16.h"
+#include "kernelClang/memory/memory.h"
+#include "kernelClang/memory/task.h"
 
 FAT16 fs;
 char buf[128];
@@ -61,12 +60,9 @@ void command(char *s){
 }
 
 void OSinit(){
-    timer_init();
-    asm_sti();
-    
+    IRQ_init();
     HeapInit();
     fat16_init(&fs);
-    set_pading();
     return ;
 }
 

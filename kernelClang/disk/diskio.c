@@ -1,4 +1,4 @@
-#include "std.h"
+#include "..\std.h"
 #include "diskio.h"
 
 static int wait_bsy(void){
