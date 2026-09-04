@@ -1,7 +1,7 @@
 $TOTAL=131072; $SEC=512; $RES=64; $FAT_CNT=2; $FAT_SEC=128
 $ROOT_ENT=512; $ROOT_SEC=($ROOT_ENT*32)/$SEC
 $DATA_START=$RES+$FAT_CNT*$FAT_SEC+$ROOT_SEC
-$KERNEL_SEC=63
+$KERNEL_SEC=127
 
 $img=New-Object byte[] ([int]($TOTAL*$SEC))
 function sw($a,$o,$v){ $a[$o]=$v-band0xFF; $a[$o+1]=($v-shr8)-band0xFF }
@@ -21,7 +21,7 @@ $boot=[System.IO.File]::ReadAllBytes("boot.bin")
 for($i=62;$i-lt[Math]::Min($boot.Length,510);$i++){ $bpb[$i]=$boot[$i] }
 $bpb.CopyTo($img,0)
 
-$kernel=[System.IO.File]::ReadAllBytes("kernel.bin")
+$kernel=[System.IO.File]::ReadAllBytes("kernel_full.bin")
 $pad=$KERNEL_SEC*$SEC
 if($kernel.Length-gt$pad){ throw "kernel.bin too large ($($kernel.Length) > $pad)" }
 [Array]::Copy($kernel,0,$img,1*$SEC,$kernel.Length)

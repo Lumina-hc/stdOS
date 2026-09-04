@@ -8,6 +8,8 @@ FAT16 fs;
 char buf[128];
 char tmp[1024];
 
+extern char __kernel_end[];
+
 static int icmp(char *a, char *b){
     for(;*a&&*b;a++,b++){
         char ca=*a, cb=*b;
@@ -30,9 +32,9 @@ static int ipre(char *a, char *pre){
 
 void command(char *s){
     if(*s==0) return;
-    if(icmp(s,"help")){ print("help clear about ls cat cd mkdir rm write\n"); return; }
+    if(icmp(s,"help")){ print("help clear about ls cat cd mkdir rm write shell\n"); return; }
     if(icmp(s,"clear")){ clear(); return; }
-    if(icmp(s,"about")){ print("stdOS v0.1.0\n"); return; }
+    if(icmp(s,"about")){ print("stdOS v0.2.0\n"); return; }
     if(icmp(s,"ls")){ fat16_list(&fs); return; }
     if(ipre(s,"cd")){ if(fat16_cd(&fs,s+3)) print("not found\n"); return; }
     if(ipre(s,"cat")){
@@ -56,6 +58,15 @@ void command(char *s){
         return;
     }
     if(ipre(s,"echo")){ int i=5; if(s[i]){ print(s+i); print("\n"); } return; }
+    if(icmp(s,"shell")){
+        char* src = (char*)__kernel_end;
+        char* dst = (char*)0x400000;
+        for(int i = 0; i < 4096; i++) dst[i] = src[i];
+        print("entering user mode...\n");
+        jump_to_user(0x400000 + 0x1000, 0x400000);
+        print("returned from user mode?\n");
+        return;
+    }
     print("unknown\n");
 }
 
@@ -68,7 +79,7 @@ void OSinit(){
 
 void kmain(void){
     OSinit();
-    print("stdOS Alpha 0.1.0\n");
+    print("stdOS Alpha 0.2.0\n");
     while(1){
         print("> ");
         rline(buf);

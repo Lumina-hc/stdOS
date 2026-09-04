@@ -3,6 +3,7 @@ global _start
 
 extern __bss_start, __bss_end
 extern setIdt, irq_init, clear, kmain
+extern tss_init
 
 _start:
     cli
@@ -22,6 +23,7 @@ _start:
     cli
     call setIdt
     call irq_init
+    call tss_init
     sti
     
     call clear

@@ -25,7 +25,7 @@ bs_vol           db "STDOS      "
 bs_fstype        db "FAT16   "
 
 KERNEL_LBA equ 1
-KERNEL_SEC equ 63
+KERNEL_SEC equ 127
 
 start:
     cli
@@ -112,6 +112,13 @@ gdt:
     db 0
     db 11110010b
     db 11001111b
+    db 0
+tss_start:
+    dw 0x0067
+    dw 0
+    db 0
+    db 10001001b
+    db 01000000b
     db 0
 gdt_end:
 

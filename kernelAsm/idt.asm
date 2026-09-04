@@ -2,13 +2,16 @@ bits 32
 
 IDT_PRESENT   equ 0x80
 IDT_DPL0      equ 0x00
+IDT_DPL3      equ 0x60
 IDT_INT_GATE  equ 0x0E
 
 IDT_ATTR_INT  equ IDT_PRESENT|IDT_DPL0|IDT_INT_GATE
+IDT_ATTR_INT_USER equ IDT_PRESENT|IDT_DPL3|IDT_INT_GATE
 
 CODE_SEL      equ 0x08
 DATA_SEL      equ 0x10
 IDT_ENTRIES   equ 256
+SYSCALL_VEC   equ 0x80
 
 global setIdt, irq_init, registerHandler
 
@@ -80,7 +83,13 @@ setIdt:
     mov word [edi],ax
     mov word [edi+2],CODE_SEL
     mov byte [edi+4],0
+    cmp ebx,SYSCALL_VEC
+    je .user_gate
     mov byte [edi+5],IDT_ATTR_INT
+    jmp .next_gate
+.user_gate:
+    mov byte [edi+5],IDT_ATTR_INT_USER
+.next_gate:
     shr eax,16
     mov word [edi+6],ax
     add edi,8
