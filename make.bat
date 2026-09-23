@@ -11,7 +11,7 @@ nasm -f elf32 kernelAsm\syscall.asm -o sc.o
 
 nasm -f bin userShell.asm -o usershell.bin
 
-i686-elf-gcc -m32 -ffreestanding -nostdlib -c -std=c99 kernel.c -o kernel.o
+i686-elf-gcc -m32 -ffreestanding -nostdlib -c -std=c99 kernel.c -o ckernelhead.o
 i686-elf-gcc -m32 -ffreestanding -nostdlib -c -std=c99 kernelClang\std.c -o std.o
 
 i686-elf-gcc -m32 -ffreestanding -nostdlib -c -std=c99 kernelClang\disk\diskio.c -o diskio.o
@@ -23,12 +23,12 @@ i686-elf-gcc -m32 -ffreestanding -nostdlib -c -std=c99 kernelClang\memory\task.c
 i686-elf-gcc -m32 -ffreestanding -nostdlib -c -std=c99 kernelClang\irqint.c -o int.o
 i686-elf-gcc -m32 -ffreestanding -nostdlib -c -std=c99 kernelClang\syscall.c -o syscall.o
 
-i686-elf-ld -T linker.ld -o kernel.elf khead.o kernel.o cfunc.o basic.o key.o global.o idt.o tss.o sc.o std.o diskio.o fat16.o int.o mem.o task.o syscall.o
+i686-elf-ld -T linker.ld -o kernel.elf khead.o ckernelhead.o cfunc.o basic.o key.o global.o idt.o tss.o sc.o std.o diskio.o fat16.o int.o mem.o task.o syscall.o 
 i686-elf-objcopy -O binary kernel.elf kernel.bin
 
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-copy /b kernel.bin + usershell.bin kernel_full.bin >nul
+copy /b kernel.bin kernel_full.bin >nul
 
 powershell -NoProfile -ExecutionPolicy Bypass -File mkimg.ps1
 

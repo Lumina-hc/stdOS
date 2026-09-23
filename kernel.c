@@ -64,7 +64,7 @@ void command(char *s){
         for(int i = 0; i < 4096; i++) dst[i] = src[i];
         print("entering user mode...\n");
         jump_to_user(0x400000 + 0x1000, 0x400000);
-        print("returned from user mode?\n");
+
         return;
     }
     print("unknown\n");
@@ -74,15 +74,14 @@ void OSinit(){
     IRQ_init();
     HeapInit();
     fat16_init(&fs);
+    char* src = (char*)__kernel_end;
+    char* dst = (char*)0x400000;
+    for(int i = 0; i < 4096; i++) dst[i] = src[i];
+    print("entering user mode...\n");
+    jump_to_user(0x400000 + 0x1000, 0x400000);
     return ;
 }
 
 void kmain(void){
     OSinit();
-    print("stdOS Alpha 0.2.0\n");
-    while(1){
-        print("> ");
-        rline(buf);
-        command(buf);
-    }
 }

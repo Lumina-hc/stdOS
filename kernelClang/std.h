@@ -32,7 +32,6 @@ void io_out32(int port, int data);
 
 void rline(char* buffer);
 void print(char* msg);
-void clearline(void);
 
 int keyboard(void);
 char getchar(void);

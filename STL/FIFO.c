@@ -44,7 +44,5 @@ void init_FIFO8(struct FIFO8* fifo, uint32_t size){
 }
 
 void push_FIFO8(struct FIFO8* fifo, uint8_t data){
-    if (fifo->head == fifo->tail){
-
-    }
+    
 }
