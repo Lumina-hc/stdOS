@@ -15,13 +15,13 @@ nasm -f elf32 src\entry.asm -o %BUILD%\entry.o || exit /b 1
 i686-elf-gcc -ffreestanding -fno-pic -fno-stack-protector -fno-builtin -fno-pie -O2 -Wall -Wextra -c src\kmain.c -o %BUILD%\kmain.o || exit /b 1
 i686-elf-ld -T link\kernel.ld -o %BUILD%\kernel.elf %BUILD%\entry.o %BUILD%\kmain.o || exit /b 1
 i686-elf-objcopy -O binary %BUILD%\kernel.elf %BUILD%\kernel.bin || exit /b 1
-copy /b %BUILD%\mbr.bin + %BUILD%\kernel.bin os.img >nul || exit /b 1
+CrtImg.exe len:1440 size:2 build\mbr.bin,build\kernel.bin fill:00 name:os.img
 echo build ok
 exit /b 0
 
 :run
 call :build || exit /b 1
-D:\programs\qemu\qemu-system-i386.exe -drive format=raw,file=os.img
+qemu-system-i386 -drive format=raw,file=os.img,file.locking=off
 exit /b %errorlevel%
 
 :clean
