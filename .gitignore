@@ -1,5 +1,2 @@
-*.bin
-*.img
-*.o
-/test/
-/Tools/
+build/
+os.img
